@@ -22,6 +22,7 @@ The Bookmark Management API is built using the following tech stack:
 - Search and filtering capabilities
 - Rate limiting
 - API documentation
+- Standardized API response format
 
 ### 2.2 Architecture
 
@@ -109,14 +110,18 @@ The application follows a layered architecture:
 - **Response**:
   ```json
   {
+    "code": "USER_REGISTERED",
     "message": "User registered successfully",
-    "user": {
-      "id": "number",
-      "username": "string",
-      "email": "string"
+    "data": {
+      "user": {
+        "id": "number",
+        "username": "string",
+        "email": "string"
+      },
+      "token": "string",
+      "refreshToken": "string"
     },
-    "token": "string",
-    "refreshToken": "string"
+    "serverTime": "number"
   }
   ```
 
@@ -132,14 +137,18 @@ The application follows a layered architecture:
 - **Response**:
   ```json
   {
+    "code": "LOGIN_SUCCESS",
     "message": "Login successful",
-    "user": {
-      "id": "number",
-      "username": "string",
-      "email": "string"
+    "data": {
+      "user": {
+        "id": "number",
+        "username": "string",
+        "email": "string"
+      },
+      "token": "string",
+      "refreshToken": "string"
     },
-    "token": "string",
-    "refreshToken": "string"
+    "serverTime": "number"
   }
   ```
 
@@ -154,8 +163,12 @@ The application follows a layered architecture:
 - **Response**:
   ```json
   {
+    "code": "TOKEN_REFRESHED",
     "message": "Token refreshed successfully",
-    "token": "string"
+    "data": {
+      "token": "string"
+    },
+    "serverTime": "number"
   }
   ```
 
@@ -173,31 +186,36 @@ The application follows a layered architecture:
 - **Response**:
   ```json
   {
-    "bookmarks": [
-      {
-        "id": "number",
-        "user_id": "number",
-        "category_id": "number",
-        "url": "string",
-        "title": "string",
-        "description": "string",
-        "preview_image": "string",
-        "created_at": "string",
-        "updated_at": "string",
-        "tags": [
-          {
-            "id": "number",
-            "name": "string"
-          }
-        ]
+    "code": "BOOKMARKS_RETRIEVED",
+    "message": "Bookmarks retrieved successfully",
+    "data": {
+      "bookmarks": [
+        {
+          "id": "number",
+          "user_id": "number",
+          "category_id": "number",
+          "url": "string",
+          "title": "string",
+          "description": "string",
+          "preview_image": "string",
+          "created_at": "string",
+          "updated_at": "string",
+          "tags": [
+            {
+              "id": "number",
+              "name": "string"
+            }
+          ]
+        }
+      ],
+      "pagination": {
+        "total": "number",
+        "page": "number",
+        "limit": "number",
+        "pages": "number"
       }
-    ],
-    "pagination": {
-      "total": "number",
-      "page": "number",
-      "limit": "number",
-      "pages": "number"
-    }
+    },
+    "serverTime": "number"
   }
   ```
 
@@ -217,24 +235,28 @@ The application follows a layered architecture:
 - **Response**:
   ```json
   {
+    "code": "BOOKMARK_CREATED",
     "message": "Bookmark created successfully",
-    "bookmark": {
-      "id": "number",
-      "user_id": "number",
-      "category_id": "number",
-      "url": "string",
-      "title": "string",
-      "description": "string",
-      "preview_image": "string",
-      "created_at": "string",
-      "updated_at": "string",
-      "tags": [
-        {
-          "id": "number",
-          "name": "string"
-        }
-      ]
-    }
+    "data": {
+      "bookmark": {
+        "id": "number",
+        "user_id": "number",
+        "category_id": "number",
+        "url": "string",
+        "title": "string",
+        "description": "string",
+        "preview_image": "string",
+        "created_at": "string",
+        "updated_at": "string",
+        "tags": [
+          {
+            "id": "number",
+            "name": "string"
+          }
+        ]
+      }
+    },
+    "serverTime": "number"
   }
   ```
 
@@ -245,23 +267,28 @@ The application follows a layered architecture:
 - **Response**:
   ```json
   {
-    "bookmark": {
-      "id": "number",
-      "user_id": "number",
-      "category_id": "number",
-      "url": "string",
-      "title": "string",
-      "description": "string",
-      "preview_image": "string",
-      "created_at": "string",
-      "updated_at": "string",
-      "tags": [
-        {
-          "id": "number",
-          "name": "string"
-        }
-      ]
-    }
+    "code": "BOOKMARK_RETRIEVED",
+    "message": "Bookmark retrieved successfully",
+    "data": {
+      "bookmark": {
+        "id": "number",
+        "user_id": "number",
+        "category_id": "number",
+        "url": "string",
+        "title": "string",
+        "description": "string",
+        "preview_image": "string",
+        "created_at": "string",
+        "updated_at": "string",
+        "tags": [
+          {
+            "id": "number",
+            "name": "string"
+          }
+        ]
+      }
+    },
+    "serverTime": "number"
   }
   ```
 
@@ -282,24 +309,28 @@ The application follows a layered architecture:
 - **Response**:
   ```json
   {
+    "code": "BOOKMARK_UPDATED",
     "message": "Bookmark updated successfully",
-    "bookmark": {
-      "id": "number",
-      "user_id": "number",
-      "category_id": "number",
-      "url": "string",
-      "title": "string",
-      "description": "string",
-      "preview_image": "string",
-      "created_at": "string",
-      "updated_at": "string",
-      "tags": [
-        {
-          "id": "number",
-          "name": "string"
-        }
-      ]
-    }
+    "data": {
+      "bookmark": {
+        "id": "number",
+        "user_id": "number",
+        "category_id": "number",
+        "url": "string",
+        "title": "string",
+        "description": "string",
+        "preview_image": "string",
+        "created_at": "string",
+        "updated_at": "string",
+        "tags": [
+          {
+            "id": "number",
+            "name": "string"
+          }
+        ]
+      }
+    },
+    "serverTime": "number"
   }
   ```
 
@@ -310,7 +341,10 @@ The application follows a layered architecture:
 - **Response**:
   ```json
   {
-    "message": "Bookmark deleted successfully"
+    "code": "BOOKMARK_DELETED",
+    "message": "Bookmark deleted successfully",
+    "data": null,
+    "serverTime": "number"
   }
   ```
 
@@ -322,16 +356,21 @@ The application follows a layered architecture:
 - **Response**:
   ```json
   {
-    "categories": [
-      {
-        "id": "number",
-        "user_id": "number",
-        "name": "string",
-        "created_at": "string",
-        "updated_at": "string",
-        "bookmark_count": "number"
-      }
-    ]
+    "code": "CATEGORIES_RETRIEVED",
+    "message": "Categories retrieved successfully",
+    "data": {
+      "categories": [
+        {
+          "id": "number",
+          "user_id": "number",
+          "name": "string",
+          "created_at": "string",
+          "updated_at": "string",
+          "bookmark_count": "number"
+        }
+      ]
+    },
+    "serverTime": "number"
   }
   ```
 
@@ -347,14 +386,18 @@ The application follows a layered architecture:
 - **Response**:
   ```json
   {
+    "code": "CATEGORY_CREATED",
     "message": "Category created successfully",
-    "category": {
-      "id": "number",
-      "user_id": "number",
-      "name": "string",
-      "created_at": "string",
-      "updated_at": "string"
-    }
+    "data": {
+      "category": {
+        "id": "number",
+        "user_id": "number",
+        "name": "string",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "serverTime": "number"
   }
   ```
 
@@ -371,14 +414,18 @@ The application follows a layered architecture:
 - **Response**:
   ```json
   {
+    "code": "CATEGORY_UPDATED",
     "message": "Category updated successfully",
-    "category": {
-      "id": "number",
-      "user_id": "number",
-      "name": "string",
-      "created_at": "string",
-      "updated_at": "string"
-    }
+    "data": {
+      "category": {
+        "id": "number",
+        "user_id": "number",
+        "name": "string",
+        "created_at": "string",
+        "updated_at": "string"
+      }
+    },
+    "serverTime": "number"
   }
   ```
 
@@ -389,7 +436,10 @@ The application follows a layered architecture:
 - **Response**:
   ```json
   {
-    "message": "Category deleted successfully"
+    "code": "CATEGORY_DELETED",
+    "message": "Category deleted successfully",
+    "data": null,
+    "serverTime": "number"
   }
   ```
 
@@ -408,31 +458,55 @@ The API uses JWT (JSON Web Tokens) for authentication:
 
 3. When the access token expires, the client can use the refresh token to obtain a new access token without requiring the user to log in again.
 
-## 6. Error Handling
+## 6. Standardized Response Format
 
-The API uses a standardized error response format:
+The API uses a standardized response format for all endpoints:
+
+### 6.1 Success Response
 
 ```json
 {
+  "code": "SUCCESS_CODE",
+  "message": "Success message",
+  "data": {
+    // Response data
+  },
+  "serverTime": 1617895234000
+}
+```
+
+### 6.2 Error Response
+
+```json
+{
+  "code": "ERROR_CODE",
+  "message": "Error message",
+  "serverTime": 1617895234000,
   "error": {
     "message": "Error message",
     "details": [
-      "Additional error information"
+      {
+        "path": "field_name",
+        "message": "Error detail"
+      }
     ]
   }
 }
 ```
 
-Common HTTP status codes:
-- 200 OK: Successful request
-- 201 Created: Resource created successfully
-- 400 Bad Request: Invalid input data
-- 401 Unauthorized: Authentication required or failed
-- 403 Forbidden: Insufficient permissions
-- 404 Not Found: Resource not found
-- 409 Conflict: Resource already exists
-- 429 Too Many Requests: Rate limit exceeded
-- 500 Internal Server Error: Server error
+### 6.3 Error Codes
+
+Common HTTP status codes and their corresponding error codes:
+- 200 OK: SUCCESS
+- 201 Created: SUCCESS (with specific code like USER_REGISTERED)
+- 400 Bad Request: BAD_REQUEST
+- 401 Unauthorized: UNAUTHORIZED
+- 403 Forbidden: FORBIDDEN or PERMISSION_DENIED
+- 404 Not Found: NOT_FOUND, BOOKMARK_NOT_FOUND, CATEGORY_NOT_FOUND, etc.
+- 409 Conflict: CONFLICT, CATEGORY_NAME_CONFLICT, etc.
+- 422 Unprocessable Entity: VALIDATION_ERROR
+- 429 Too Many Requests: TOO_MANY_REQUESTS
+- 500 Internal Server Error: INTERNAL_SERVER_ERROR
 
 ## 7. Security Considerations
 
@@ -442,6 +516,12 @@ Common HTTP status codes:
 - Input validation is performed on all endpoints
 - SQL injection protection through parameterized queries
 - Authentication and authorization checks for all protected routes
+
+### 7.1 Rate Limiting
+
+The API implements rate limiting to protect against abuse:
+- Authentication endpoints (register, login): 10 requests per 15 minutes
+- Standard endpoints: 30 requests per minute
 
 ## 8. Deployment
 
@@ -493,4 +573,4 @@ The application is dockerized for easy deployment:
 
 ## 10. Conclusion
 
-The Bookmark Management API provides a robust foundation for building bookmark management applications. It follows RESTful principles and uses modern web technologies to deliver a secure and scalable solution.
+The Bookmark Management API provides a robust foundation for building bookmark management applications. It follows RESTful principles and uses modern web technologies to deliver a secure and scalable solution. The standardized response format ensures consistency across all endpoints, making it easier for clients to consume the API.
