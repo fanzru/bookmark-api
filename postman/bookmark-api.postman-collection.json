@@ -1,0 +1,366 @@
+{
+    "info": {
+      "name": "Bookmark API",
+      "description": "RESTful API for managing bookmarks",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Authentication",
+        "item": [
+          {
+            "name": "Register",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"username\": \"testuser\",\n    \"email\": \"test@example.com\",\n    \"password\": \"Password123!\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/auth/register",
+                "host": ["{{baseUrl}}"],
+                "path": ["auth", "register"]
+              },
+              "description": "Register a new user"
+            },
+            "response": []
+          },
+          {
+            "name": "Login",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"Password123!\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/auth/login",
+                "host": ["{{baseUrl}}"],
+                "path": ["auth", "login"]
+              },
+              "description": "Login a user"
+            },
+            "response": []
+          },
+          {
+            "name": "Refresh Token",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/auth/refresh-token",
+                "host": ["{{baseUrl}}"],
+                "path": ["auth", "refresh-token"]
+              },
+              "description": "Refresh access token"
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Bookmarks",
+        "item": [
+          {
+            "name": "Get All Bookmarks",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/bookmarks?category_id={{categoryId}}&search=example&tags=web,coding&page=1&limit=10",
+                "host": ["{{baseUrl}}"],
+                "path": ["bookmarks"],
+                "query": [
+                  {
+                    "key": "category_id",
+                    "value": "{{categoryId}}",
+                    "description": "Filter by category ID"
+                  },
+                  {
+                    "key": "search",
+                    "value": "example",
+                    "description": "Search term"
+                  },
+                  {
+                    "key": "tags",
+                    "value": "web,coding",
+                    "description": "Comma separated tag names"
+                  },
+                  {
+                    "key": "page",
+                    "value": "1",
+                    "description": "Page number"
+                  },
+                  {
+                    "key": "limit",
+                    "value": "10",
+                    "description": "Number of items per page"
+                  }
+                ]
+              },
+              "description": "Get all bookmarks for authenticated user"
+            },
+            "response": []
+          },
+          {
+            "name": "Create Bookmark",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"url\": \"https://example.com\",\n    \"title\": \"Example Website\",\n    \"description\": \"This is an example website\",\n    \"category_id\": {{categoryId}},\n    \"tags\": [\"example\", \"website\"]\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/bookmarks",
+                "host": ["{{baseUrl}}"],
+                "path": ["bookmarks"]
+              },
+              "description": "Create a new bookmark"
+            },
+            "response": []
+          },
+          {
+            "name": "Get Bookmark by ID",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/bookmarks/{{bookmarkId}}",
+                "host": ["{{baseUrl}}"],
+                "path": ["bookmarks", "{{bookmarkId}}"]
+              },
+              "description": "Get a specific bookmark by ID"
+            },
+            "response": []
+          },
+          {
+            "name": "Update Bookmark",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"title\": \"Updated Example Website\",\n    \"description\": \"This is an updated example website\",\n    \"category_id\": {{categoryId}},\n    \"tags\": [\"example\", \"website\", \"updated\"]\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/bookmarks/{{bookmarkId}}",
+                "host": ["{{baseUrl}}"],
+                "path": ["bookmarks", "{{bookmarkId}}"]
+              },
+              "description": "Update a bookmark"
+            },
+            "response": []
+          },
+          {
+            "name": "Delete Bookmark",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/bookmarks/{{bookmarkId}}",
+                "host": ["{{baseUrl}}"],
+                "path": ["bookmarks", "{{bookmarkId}}"]
+              },
+              "description": "Delete a bookmark"
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Categories",
+        "item": [
+          {
+            "name": "Get All Categories",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/categories",
+                "host": ["{{baseUrl}}"],
+                "path": ["categories"]
+              },
+              "description": "Get all categories for authenticated user"
+            },
+            "response": []
+          },
+          {
+            "name": "Create Category",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"name\": \"Example Category\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/categories",
+                "host": ["{{baseUrl}}"],
+                "path": ["categories"]
+              },
+              "description": "Create a new category"
+            },
+            "response": []
+          },
+          {
+            "name": "Update Category",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"name\": \"Updated Example Category\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/categories/{{categoryId}}",
+                "host": ["{{baseUrl}}"],
+                "path": ["categories", "{{categoryId}}"]
+              },
+              "description": "Update a category"
+            },
+            "response": []
+          },
+          {
+            "name": "Delete Category",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{token}}"
+                }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/categories/{{categoryId}}",
+                "host": ["{{baseUrl}}"],
+                "path": ["categories", "{{categoryId}}"]
+              },
+              "description": "Delete a category"
+            },
+            "response": []
+          }
+        ]
+      }
+    ],
+    "event": [
+      {
+        "listen": "prerequest",
+        "script": {
+          "type": "text/javascript",
+          "exec": [""]
+        }
+      },
+      {
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [""]
+        }
+      }
+    ],
+    "variable": [
+      {
+        "key": "baseUrl",
+        "value": "http://localhost:3000",
+        "type": "string"
+      },
+      {
+        "key": "token",
+        "value": "",
+        "type": "string"
+      },
+      {
+        "key": "refreshToken",
+        "value": "",
+        "type": "string"
+      },
+      {
+        "key": "categoryId",
+        "value": "",
+        "type": "string"
+      },
+      {
+        "key": "bookmarkId",
+        "value": "",
+        "type": "string"
+      }
+    ]
+  }
