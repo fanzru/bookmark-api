@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { UserModel, UserCreate } from '../models/user.model';
 import { ApiError } from '../utils/error';
 import { config } from '../utils/config';
+import { sendSuccess, sendError } from '../utils/response';
 
 // Define validation schema for registration
 export const registerSchema = z.object({
@@ -51,21 +52,26 @@ export class AuthController {
       // Generate refresh token
       const refreshToken = await AuthController.generateRefreshToken(user.id, user.username);
       
-      return c.json({
-        message: 'User registered successfully',
-        user: {
-          id: user.id,
-          username: user.username,
-          email: user.email
+      return sendSuccess(
+        c,
+        {
+          user: {
+            id: user.id,
+            username: user.username,
+            email: user.email
+          },
+          token,
+          refreshToken
         },
-        token,
-        refreshToken
-      }, 201);
+        'User registered successfully',
+        'USER_REGISTERED',
+        201
+      );
     } catch (error) {
       if (error instanceof ApiError) {
-        throw error;
+        return sendError(c, error.message, error.errors, error.statusCode);
       }
-      throw ApiError.internalServer('Failed to register user');
+      return sendError(c, 'Failed to register user');
     }
   }
   
@@ -78,14 +84,14 @@ export class AuthController {
       const user = await UserModel.findByEmail(email);
       
       if (!user) {
-        throw ApiError.unauthorized('Invalid email or password');
+        return sendError(c, 'Invalid email or password', undefined, 401, 'INVALID_CREDENTIALS');
       }
       
       // Compare password
       const isPasswordValid = await bcrypt.compare(password, user.password);
       
       if (!isPasswordValid) {
-        throw ApiError.unauthorized('Invalid email or password');
+        return sendError(c, 'Invalid email or password', undefined, 401, 'INVALID_CREDENTIALS');
       }
       
       // Generate JWT token
@@ -94,21 +100,25 @@ export class AuthController {
       // Generate refresh token
       const refreshToken = await AuthController.generateRefreshToken(user.id, user.username);
       
-      return c.json({
-        message: 'Login successful',
-        user: {
-          id: user.id,
-          username: user.username,
-          email: user.email
+      return sendSuccess(
+        c,
+        {
+          user: {
+            id: user.id,
+            username: user.username,
+            email: user.email
+          },
+          token,
+          refreshToken
         },
-        token,
-        refreshToken
-      });
+        'Login successful',
+        'LOGIN_SUCCESS'
+      );
     } catch (error) {
       if (error instanceof ApiError) {
-        throw error;
+        return sendError(c, error.message, error.errors, error.statusCode);
       }
-      throw ApiError.internalServer('Failed to login');
+      return sendError(c, 'Failed to login');
     }
   }
   
@@ -126,24 +136,28 @@ export class AuthController {
         const user = await UserModel.findById(userId);
         
         if (!user) {
-          throw ApiError.unauthorized('User no longer exists');
+          return sendError(c, 'User no longer exists', undefined, 401, 'USER_NOT_FOUND');
         }
         
         // Generate new access token
         const newToken = await AuthController.generateToken(userId, username);
         
-        return c.json({
-          message: 'Token refreshed successfully',
-          token: newToken
-        });
+        return sendSuccess(
+          c,
+          {
+            token: newToken
+          },
+          'Token refreshed successfully',
+          'TOKEN_REFRESHED'
+        );
       } catch (error) {
-        throw ApiError.unauthorized('Invalid or expired refresh token');
+        return sendError(c, 'Invalid or expired refresh token', undefined, 401, 'INVALID_REFRESH_TOKEN');
       }
     } catch (error) {
       if (error instanceof ApiError) {
-        throw error;
+        return sendError(c, error.message, error.errors, error.statusCode);
       }
-      throw ApiError.internalServer('Failed to refresh token');
+      return sendError(c, 'Failed to refresh token');
     }
   }
   

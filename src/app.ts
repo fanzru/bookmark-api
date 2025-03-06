@@ -11,6 +11,9 @@ import { ApiError } from './utils/error';
 import authRoutes from './routes/auth.routes';
 import bookmarkRoutes from './routes/bookmark.routes';
 import categoryRoutes from './routes/category.routes';
+import { setupSwagger } from './utils/swagger';
+import { standardizeResponse } from './middlewares/response.middleware';
+import { sendError } from './utils/response';
 
 // Create Hono app
 const app = new Hono();
@@ -18,6 +21,7 @@ const app = new Hono();
 // Middleware
 app.use('*', requestLogger());
 app.use('*', cors());
+app.use('*', standardizeResponse); // 
 
 // Swagger documentation
 app.get(
@@ -35,44 +39,38 @@ app.route('/auth', authRoutes);
 app.route('/bookmarks', bookmarkRoutes);
 app.route('/categories', categoryRoutes);
 
+// Setup Swagger documentation
+setupSwagger(app);
+
 // Error handling middleware
 app.onError((err, c) => {
-  logger.error(err);
-
-  if (err instanceof ApiError) {
-    return c.json(
-      {
-        error: {
-          message: err.message,
-          ...(err.errors && { details: err.errors }),
-        },
-      },
-      err.statusCode as 400 | 401 | 403 | 404 | 500
+    logger.error(err);
+  
+    if (err instanceof ApiError) {
+      return sendError(
+        c,
+        err.message,
+        err.errors,
+        err.statusCode
+      );
+    }
+  
+    return sendError(
+      c,
+      'Internal Server Error'
     );
-  }
-
-  return c.json(
-    {
-      error: {
-        message: 'Internal Server Error',
-      },
-    },
-    500
-  );
-});
-
-// Handle 404 - Route not found
-app.notFound((c) => {
-  return c.json(
-    {
-      error: {
-        message: 'Not Found',
-        details: `No route found for ${c.req.method} ${c.req.url}`,
-      },
-    },
-    404
-  );
-});
+  });
+  
+  // Handle 404 - Route not found
+  app.notFound((c) => {
+    return sendError(
+      c,
+      `Route not found for ${c.req.method} ${c.req.url}`,
+      undefined,
+      404,
+      'ROUTE_NOT_FOUND'
+    );
+  });
 
 // Start server
 if (process.env.NODE_ENV !== 'test') {

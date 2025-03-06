@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { BookmarkModel, BookmarkCreate, BookmarkUpdate } from '../models/bookmark.model';
 import { TagModel } from '../models/tag.model';
 import { ApiError } from '../utils/error';
+import { sendSuccess, sendError } from '../utils/response';
 
 // Define validation schema for creating bookmark
 export const createBookmarkSchema = z.object({
@@ -69,18 +70,23 @@ export class BookmarkController {
       const createdBookmark = await BookmarkModel.findById(bookmark.id);
       const tags = await BookmarkModel.getTagsForBookmark(bookmark.id);
       
-      return c.json({
-        message: 'Bookmark created successfully',
-        bookmark: {
-          ...createdBookmark,
-          tags
-        }
-      }, 201);
+      return sendSuccess(
+        c,
+        {
+          bookmark: {
+            ...createdBookmark,
+            tags
+          }
+        },
+        'Bookmark created successfully',
+        'BOOKMARK_CREATED',
+        201
+      );
     } catch (error) {
       if (error instanceof ApiError) {
-        throw error;
+        return sendError(c, error.message, error.errors, error.statusCode);
       }
-      throw ApiError.internalServer('Failed to create bookmark');
+      return sendError(c, 'Failed to create bookmark');
     }
   }
   
@@ -119,20 +125,25 @@ export class BookmarkController {
         })
       );
       
-      return c.json({
-        bookmarks: bookmarksWithTags,
-        pagination: {
-          total,
-          page,
-          limit,
-          pages: Math.ceil(total / limit)
-        }
-      });
+      return sendSuccess(
+        c,
+        {
+          bookmarks: bookmarksWithTags,
+          pagination: {
+            total,
+            page,
+            limit,
+            pages: Math.ceil(total / limit)
+          }
+        },
+        'Bookmarks retrieved successfully',
+        'BOOKMARKS_RETRIEVED'
+      );
     } catch (error) {
       if (error instanceof ApiError) {
-        throw error;
+        return sendError(c, error.message, error.errors, error.statusCode);
       }
-      throw ApiError.internalServer('Failed to retrieve bookmarks');
+      return sendError(c, 'Failed to retrieve bookmarks');
     }
   }
   
@@ -146,28 +157,33 @@ export class BookmarkController {
       const bookmark = await BookmarkModel.findById(bookmarkId);
       
       if (!bookmark) {
-        throw ApiError.notFound('Bookmark not found');
+        return sendError(c, 'Bookmark not found', undefined, 404, 'BOOKMARK_NOT_FOUND');
       }
       
       // Check if bookmark belongs to user
       if (bookmark.user_id !== userId) {
-        throw ApiError.forbidden('You do not have permission to view this bookmark');
+        return sendError(c, 'You do not have permission to view this bookmark', undefined, 403, 'PERMISSION_DENIED');
       }
       
       // Fetch tags for bookmark
       const tags = await BookmarkModel.getTagsForBookmark(bookmarkId);
       
-      return c.json({
-        bookmark: {
-          ...bookmark,
-          tags
-        }
-      });
+      return sendSuccess(
+        c,
+        {
+          bookmark: {
+            ...bookmark,
+            tags
+          }
+        },
+        'Bookmark retrieved successfully',
+        'BOOKMARK_RETRIEVED'
+      );
     } catch (error) {
       if (error instanceof ApiError) {
-        throw error;
+        return sendError(c, error.message, error.errors, error.statusCode);
       }
-      throw ApiError.internalServer('Failed to retrieve bookmark');
+      return sendError(c, 'Failed to retrieve bookmark');
     }
   }
   
@@ -182,11 +198,11 @@ export class BookmarkController {
       const bookmark = await BookmarkModel.findById(bookmarkId);
       
       if (!bookmark) {
-        throw ApiError.notFound('Bookmark not found');
+        return sendError(c, 'Bookmark not found', undefined, 404, 'BOOKMARK_NOT_FOUND');
       }
       
       if (bookmark.user_id !== userId) {
-        throw ApiError.forbidden('You do not have permission to update this bookmark');
+        return sendError(c, 'You do not have permission to update this bookmark', undefined, 403, 'PERMISSION_DENIED');
       }
       
       // Update bookmark data
@@ -233,18 +249,22 @@ export class BookmarkController {
       // Fetch updated bookmark with tags
       const tags = await BookmarkModel.getTagsForBookmark(bookmarkId);
       
-      return c.json({
-        message: 'Bookmark updated successfully',
-        bookmark: {
-          ...updatedBookmark,
-          tags
-        }
-      });
+      return sendSuccess(
+        c,
+        {
+          bookmark: {
+            ...updatedBookmark,
+            tags
+          }
+        },
+        'Bookmark updated successfully',
+        'BOOKMARK_UPDATED'
+      );
     } catch (error) {
       if (error instanceof ApiError) {
-        throw error;
+        return sendError(c, error.message, error.errors, error.statusCode);
       }
-      throw ApiError.internalServer('Failed to update bookmark');
+      return sendError(c, 'Failed to update bookmark');
     }
   }
   
@@ -256,14 +276,17 @@ export class BookmarkController {
       
       await BookmarkModel.delete(bookmarkId, userId);
       
-      return c.json({
-        message: 'Bookmark deleted successfully'
-      });
+      return sendSuccess(
+        c,
+        null,
+        'Bookmark deleted successfully',
+        'BOOKMARK_DELETED'
+      );
     } catch (error) {
       if (error instanceof ApiError) {
-        throw error;
+        return sendError(c, error.message, error.errors, error.statusCode);
       }
-      throw ApiError.internalServer('Failed to delete bookmark');
+      return sendError(c, 'Failed to delete bookmark');
     }
   }
 }

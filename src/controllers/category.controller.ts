@@ -2,6 +2,7 @@ import { Context } from 'hono';
 import { z } from 'zod';
 import { CategoryModel, CategoryCreate, CategoryUpdate } from '../models/category.model';
 import { ApiError } from '../utils/error';
+import { sendSuccess, sendError } from '../utils/response';
 
 // Define validation schema for creating category
 export const createCategorySchema = z.object({
@@ -27,15 +28,18 @@ export class CategoryController {
       
       const category = await CategoryModel.create(categoryData);
       
-      return c.json({
-        message: 'Category created successfully',
-        category
-      }, 201);
+      return sendSuccess(
+        c,
+        { category },
+        'Category created successfully',
+        'CATEGORY_CREATED',
+        201
+      );
     } catch (error) {
       if (error instanceof ApiError) {
-        throw error;
+        return sendError(c, error.message, error.errors, error.statusCode);
       }
-      throw ApiError.internalServer('Failed to create category');
+      return sendError(c, 'Failed to create category');
     }
   }
   
@@ -46,14 +50,17 @@ export class CategoryController {
       
       const categories = await CategoryModel.findByUserId(userId);
       
-      return c.json({
-        categories
-      });
+      return sendSuccess(
+        c,
+        { categories },
+        'Categories retrieved successfully',
+        'CATEGORIES_RETRIEVED'
+      );
     } catch (error) {
       if (error instanceof ApiError) {
-        throw error;
+        return sendError(c, error.message, error.errors, error.statusCode);
       }
-      throw ApiError.internalServer('Failed to retrieve categories');
+      return sendError(c, 'Failed to retrieve categories');
     }
   }
   
@@ -64,21 +71,32 @@ export class CategoryController {
       const categoryId = parseInt(c.req.param('id'));
       const { name } = c.get('validatedData') as z.infer<typeof updateCategorySchema>;
       
-      const categoryData: CategoryUpdate = {
-        name
-      };
-      
-      const category = await CategoryModel.update(categoryId, userId, categoryData);
-      
-      return c.json({
-        message: 'Category updated successfully',
-        category
-      });
+      try {
+        const category = await CategoryModel.update(categoryId, userId, { name });
+        
+        return sendSuccess(
+          c,
+          { category },
+          'Category updated successfully',
+          'CATEGORY_UPDATED'
+        );
+      } catch (error) {
+        if (error instanceof ApiError) {
+          // Tangani error spesifik dari model
+          if (error.statusCode === 404) {
+            return sendError(c, error.message, undefined, 404, 'CATEGORY_NOT_FOUND');
+          } else if (error.statusCode === 409) {
+            return sendError(c, error.message, undefined, 409, 'CATEGORY_NAME_CONFLICT');
+          }
+          return sendError(c, error.message, error.errors, error.statusCode);
+        }
+        throw error; // Re-throw jika bukan ApiError
+      }
     } catch (error) {
       if (error instanceof ApiError) {
-        throw error;
+        return sendError(c, error.message, error.errors, error.statusCode);
       }
-      throw ApiError.internalServer('Failed to update category');
+      return sendError(c, 'Failed to update category');
     }
   }
   
@@ -88,16 +106,32 @@ export class CategoryController {
       const userId = c.get('userId');
       const categoryId = parseInt(c.req.param('id'));
       
-      await CategoryModel.delete(categoryId, userId);
-      
-      return c.json({
-        message: 'Category deleted successfully'
-      });
+      try {
+        await CategoryModel.delete(categoryId, userId);
+        
+        return sendSuccess(
+          c,
+          null,
+          'Category deleted successfully',
+          'CATEGORY_DELETED'
+        );
+      } catch (error) {
+        if (error instanceof ApiError) {
+          // Tangani error spesifik dari model
+          if (error.statusCode === 404) {
+            return sendError(c, error.message, undefined, 404, 'CATEGORY_NOT_FOUND');
+          } else if (error.statusCode === 409) {
+            return sendError(c, error.message, undefined, 409, 'CATEGORY_HAS_BOOKMARKS');
+          }
+          return sendError(c, error.message, error.errors, error.statusCode);
+        }
+        throw error; // Re-throw jika bukan ApiError
+      }
     } catch (error) {
       if (error instanceof ApiError) {
-        throw error;
+        return sendError(c, error.message, error.errors, error.statusCode);
       }
-      throw ApiError.internalServer('Failed to delete category');
+      return sendError(c, 'Failed to delete category');
     }
   }
 }
